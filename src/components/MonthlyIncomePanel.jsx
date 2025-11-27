@@ -32,7 +32,7 @@ export default function MonthlyIncomePanel({
       await setDoc(
         ref,
         {
-          userId,                 // must be present in the doc
+          userId,                 // must be p
           amount: Number(value),
           updatedAt: new Date(),
         },
