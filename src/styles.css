@@ -1121,3 +1121,225 @@ button:hover {
   background: #ff6b81;
   transform: translateY(-2px);
 }
+/* ============================================
+   15. GLOBAL RESPONSIVE SYSTEM (MOBILE → DESKTOP)
+============================================ */
+
+/* -------------------------------
+   NAVBAR RESPONSIVENESS
+------------------------------- */
+
+@media (max-width: 900px) {
+  .navbar {
+    padding: 16px 25px;
+    flex-direction: column;
+    gap: 14px;
+    text-align: center;
+  }
+
+  .navbar-center {
+    gap: 16px;
+  }
+
+  .navbar-right {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .navbar-email {
+    margin-bottom: 6px;
+  }
+}
+
+@media (max-width: 500px) {
+  .navbar-center {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .navbar-btn {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* -------------------------------
+   SIDEBAR RESPONSIVENESS
+------------------------------- */
+
+@media (max-width: 900px) {
+  .app-shell {
+    flex-direction: column;
+  }
+
+  .app-sidebar {
+    position: fixed;
+    top: 0;
+    left: -260px;
+    height: 100vh;
+    z-index: 300;
+    transition: 0.3s ease;
+  }
+
+  .app-sidebar.open {
+    left: 0;
+  }
+
+  .app-main {
+    padding: 24px;
+  }
+}
+
+/* -------------------------------
+   HOMEPAGE RESPONSIVENESS
+------------------------------- */
+
+@media (max-width: 900px) {
+  .hero {
+    flex-direction: column;
+    margin-top: 30px;
+    text-align: center;
+    gap: 24px;
+  }
+
+  .hero-text h1 {
+    font-size: 2.2rem;
+  }
+
+  .hero-image img {
+    width: 260px;
+  }
+
+  .features {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 30px;
+  }
+}
+
+@media (max-width: 600px) {
+  .features {
+    grid-template-columns: 1fr;
+  }
+
+  .hero {
+    padding: 20px;
+  }
+
+  .hero-buttons {
+    flex-direction: column;
+  }
+}
+
+/* -------------------------------
+   DASHBOARD RESPONSIVENESS
+------------------------------- */
+
+@media (max-width: 1100px) {
+  .dashboard-hero {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .hero-logo-block {
+    justify-content: center;
+  }
+
+  .summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .dash-actions {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  .summary {
+    grid-template-columns: 1fr;
+  }
+
+  .dash-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-hero {
+    padding: 18px;
+  }
+}
+
+/* -------------------------------
+   CHART RESPONSIVENESS
+------------------------------- */
+
+@media (max-width: 900px) {
+  .chart-full-container {
+    height: 350px !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .chart-full-container {
+    height: 260px !important;
+  }
+}
+
+/* -------------------------------
+   FORMS RESPONSIVENESS
+------------------------------- */
+
+@media (max-width: 700px) {
+  .transaction-form {
+    grid-template-columns: 1fr;
+  }
+
+  input,
+  select,
+  button {
+    font-size: 1rem;
+  }
+}
+
+/* -------------------------------
+   AUTH PAGE RESPONSIVENESS
+------------------------------- */
+
+@media (max-width: 600px) {
+  .auth-box {
+    max-width: 92%;
+    padding: 1.6rem;
+  }
+
+  .auth-logo img {
+    width: 120px;
+  }
+
+  .auth-box h2 {
+    font-size: 1.35rem;
+  }
+}
+
+/* -------------------------------
+   TABLE RESPONSIVENESS
+------------------------------- */
+
+@media (max-width: 600px) {
+  .transactions-table th,
+  .transactions-table td {
+    padding: 10px 6px;
+    font-size: 0.85rem;
+  }
+}
+
+/* -------------------------------
+   PAGE PADDING (GLOBAL)
+------------------------------- */
+
+@media (max-width: 500px) {
+  .app-main {
+    padding: 16px;
+  }
+
+  .home-container {
+    padding: 20px;
+  }
+}
