@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo, useState, useRef } from "react";
+// src/components/Dashboard.jsx
+import React, { useEffect, useMemo, useState } from "react";
 import {
   collection,
   onSnapshot,
@@ -6,29 +7,23 @@ import {
   where,
   orderBy,
   doc,
-  deleteDoc
+  deleteDoc,
 } from "firebase/firestore";
 import { db } from "../firebase";
 import { useAuth } from "../contexts/AuthContext";
 
-import TransactionForm from "./TransactionForm";
-import TransactionList from "./TransactionList";
 import BudgetPanel from "./BudgetPanel";
-import Charts from "./Charts";
-import ExportButtons from "./ExportButtons";
 import MonthlyIncomePanel from "./MonthlyIncomePanel";
-import Navbar from "./Navbar";
 import AnimatedCounter from "./AnimatedCounter";
+import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
   const { currentUser } = useAuth();
+  const navigate = useNavigate();
+
   const [transactions, setTransactions] = useState([]);
   const [budget, setBudget] = useState(0);
-  const [editTransaction, setEditTransaction] = useState(null);
   const [monthlyIncome, setMonthlyIncome] = useState(0);
-
-  const pieChartRef = useRef(null);
-  const barChartRef = useRef(null);
 
   /* 🔥 TRANSACTIONS */
   useEffect(() => {
@@ -51,22 +46,25 @@ export default function Dashboard() {
     return unsubscribe;
   }, [currentUser]);
 
-  /* 💰 BUDGET */
-useEffect(() => {
-  if (!currentUser) return;
+  /* 💰 MONTHLY BUDGET */
+  useEffect(() => {
+    if (!currentUser) return;
 
-  const docRef = doc(db, "monthlyIncome", currentUser.uid);
+    const q = query(
+      collection(db, "budgets"),
+      where("userId", "==", currentUser.uid)
+    );
 
-  const unsubscribe = onSnapshot(docRef, (snapshot) => {
-    if (snapshot.exists()) {
-      setMonthlyIncome(snapshot.data().amount || 0);
-    } else {
-      setMonthlyIncome(0);
-    }
-  });
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      if (!snapshot.empty) {
+        setBudget(snapshot.docs[0].data().amount || 0);
+      } else {
+        setBudget(0);
+      }
+    });
 
-  return unsubscribe;
-}, [currentUser]);
+    return unsubscribe;
+  }, [currentUser]);
 
   /* 💵 MONTHLY INCOME */
   useEffect(() => {
@@ -105,7 +103,7 @@ useEffect(() => {
     };
   }, [transactions]);
 
-  /* 🗑 DELETE */
+  /* 🗑 Delete – (still here so list page can use it later if needed) */
   async function handleDelete(id) {
     try {
       await deleteDoc(doc(db, "transactions", id));
@@ -115,33 +113,56 @@ useEffect(() => {
     }
   }
 
+  const firstName =
+    currentUser?.email?.split("@")[0]?.split(/[._-]/)[0] || "Friend";
+
   return (
     <div className="dashboard dark-dashboard">
-
-      {/* ✅ Toolbar with Glass */}
-      <Navbar />
-
-      {/* ✅ Main Content */}
       <div className="dashboard-content">
+        {/* 🌟 HERO SECTION – mirrors homepage structure */}
+        <section className="dashboard-hero">
+          <div className="hero-text-block">
+            <h1>
+              Welcome back, <span>{firstName}</span>
+            </h1>
+            <p>
+              Here’s a quick overview of your finances. Track your income,
+              control expenses, and stay aligned with your monthly goals.
+            </p>
+          </div>
 
-        {/* ===== SUMMARY SECTION ===== */}
-        <section className="summary">
+          <div className="hero-logo-block">
+            <img
+              src="/assets/cashpilot-small.png"
+              alt="CashPilot Overview"
+              className="hero-dashboard-logo"
+            />
+          </div>
+        </section>
 
+        {/* 📊 SUMMARY CARDS */}
+        <section className="summary fade-up">
           <div className="summary-box">
             <h3>Total Income</h3>
-            <p><AnimatedCounter value={totals.income} /></p>
+            <p>
+              <AnimatedCounter value={totals.income} />
+            </p>
             <small>YOUR TOTAL EARNINGS</small>
           </div>
 
           <div className="summary-box">
             <h3>Total Expenses</h3>
-            <p><AnimatedCounter value={totals.expense} /></p>
+            <p>
+              <AnimatedCounter value={totals.expense} />
+            </p>
             <small>RECORDED SPENDING</small>
           </div>
 
           <div className="summary-box">
             <h3>Balance</h3>
-            <p><AnimatedCounter value={totals.balance} /></p>
+            <p>
+              <AnimatedCounter value={totals.balance} />
+            </p>
             <small>INCOME MINUS EXPENSES</small>
           </div>
 
@@ -159,55 +180,49 @@ useEffect(() => {
               userId={currentUser?.uid}
             />
           </div>
-
         </section>
 
-{/* ===== MAIN LAYOUT ===== */}
-<section className="layout">
+        {/* 🟩 ACTION CARDS → New Screens (like homepage features) */}
+        <section className="dash-actions fade-up">
+          <article
+            className="dash-action-card"
+            onClick={() => navigate("/dashboard/form")}
+          >
+            <div className="action-icon">➕</div>
+            <h3>Add Transaction</h3>
+            <p>
+              Quickly record income or expenses. Keep your cashflow updated in
+              real-time.
+            </p>
+            <button className="action-cta">Go to Transaction Form</button>
+          </article>
 
-  {/* LEFT SIDE – Everything now full width */}
-  <div className="left chart-full-wrapper">
+          <article
+            className="dash-action-card"
+            onClick={() => navigate("/dashboard/list")}
+          >
+            <div className="action-icon">📄</div>
+            <h3>View Transactions</h3>
+            <p>
+              Browse, search and review your full transaction history with
+              labels and notes.
+            </p>
+            <button className="action-cta">Open Transaction List</button>
+          </article>
 
-    <TransactionForm
-      editTransaction={editTransaction}
-      clearEdit={() => setEditTransaction(null)}
-    />
-
-    <TransactionList
-      transactions={transactions}
-      onEdit={setEditTransaction}
-      onDelete={handleDelete}
-    />
-
-    {/* ✅ BAR CHART FULL WIDTH */}
-    <div className="chart-wide-card">
-      <h3>Income vs Expense</h3>
-      <div className="chart-full-container">
-        <Charts transactions={transactions} chartType="bar" />
-      </div>
-    </div>
-
-    {/* ✅ PIE CHART FULL WIDTH */}
-    <div className="chart-wide-card">
-      <h3>Expense Breakdown</h3>
-      <div className="chart-full-container">
-        <Charts transactions={transactions} chartType="pie" />
-      </div>
-    </div>
-
-  </div>
-              {/* EXPORT */}
-            <div className="card export-section">
-              <ExportButtons
-                transactions={transactions}
-                totals={totals}
-                pieChartRef={pieChartRef}
-                barChartRef={barChartRef}
-              />
-            </div>
-
-</section>
-
+          <article
+            className="dash-action-card"
+            onClick={() => navigate("/dashboard/charts")}
+          >
+            <div className="action-icon">📊</div>
+            <h3>Analytics & Reports</h3>
+            <p>
+              Visualize your spending patterns and export detailed reports as
+              CSV or PDF.
+            </p>
+            <button className="action-cta">View Analytics</button>
+          </article>
+        </section>
       </div>
     </div>
   );

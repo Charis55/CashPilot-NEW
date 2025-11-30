@@ -4,36 +4,74 @@ import { Routes, Route } from "react-router-dom";
 
 import Dashboard from "./components/Dashboard";
 import Login from "./components/auth/Login";
-import Signup from "./components/auth/Register";
+import Register from "./components/auth/Register";
 import ResetPassword from "./components/auth/ResetPassword";
 
 import PrivateRoute from "./components/PrivateRoute";
 import { AuthProvider } from "./contexts/AuthContext";
 import Home from "./components/Home";
 
+import AddTransactionPage from "./screens/AddTransactionPage";
+import TransactionsPage from "./screens/TransactionsPage";
+import AnalyticsPage from "./screens/AnalyticsPage";
+import SidebarLayout from "./components/Sidebar";
+
 export default function App() {
   return (
     <AuthProvider>
       <Routes>
-
-        {/* ✅ Public Homepage */}
+        {/* 🌍 Public Homepage */}
         <Route path="/" element={<Home />} />
 
-        {/* ✅ Auth Routes */}
+        {/* 🔐 Auth Routes */}
         <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+        <Route path="/register" element={<Register />} />
         <Route path="/reset-password" element={<ResetPassword />} />
 
-        {/* ✅ Protected Route */}
+        {/* 📊 Dashboard + App Screens (all behind auth + sidebar) */}
         <Route
           path="/dashboard"
           element={
             <PrivateRoute>
-              <Dashboard />
+              <SidebarLayout>
+                <Dashboard />
+              </SidebarLayout>
             </PrivateRoute>
           }
         />
 
+        <Route
+          path="/dashboard/form"
+          element={
+            <PrivateRoute>
+              <SidebarLayout>
+                <AddTransactionPage />
+              </SidebarLayout>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/dashboard/list"
+          element={
+            <PrivateRoute>
+              <SidebarLayout>
+                <TransactionsPage />
+              </SidebarLayout>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/dashboard/charts"
+          element={
+            <PrivateRoute>
+              <SidebarLayout>
+                <AnalyticsPage />
+              </SidebarLayout>
+            </PrivateRoute>
+          }
+        />
       </Routes>
     </AuthProvider>
   );

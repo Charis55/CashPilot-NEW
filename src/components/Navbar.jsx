@@ -30,7 +30,7 @@ export default function Navbar() {
             <Link to="/login" className="btn-outline">
               Login
             </Link>
-            <Link to="/register" className="btn-fill">
+            <Link to="/Register" className="btn-fill">
               Register
             </Link>
           </>
