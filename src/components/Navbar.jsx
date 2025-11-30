@@ -1,48 +1,81 @@
 // src/components/Navbar.jsx
 import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import "./Navbar.css";
 
 export default function Navbar() {
   const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
 
   async function handleLogout() {
-    await logout();
-    navigate("/");
+    try {
+      await logout();
+      navigate("/login");
+    } catch (err) {
+      console.error("Logout error:", err);
+    }
   }
 
   return (
     <header className="navbar">
-      <div className="nav-left">
-        <img src="/assets/cashpilot-logo.png" className="nav-logo" />
-        <h2>CashPilot</h2>
+      {/* LEFT: LOGO */}
+      <div className="navbar-left">
+        <NavLink to="/" className="navbar-brand">
+          <img src="/assets/cashpilot-logo.png" alt="CashPilot" />
+          <span>CashPilot</span>
+        </NavLink>
       </div>
 
-      <nav className="nav-links">
-        <Link to="/">Home</Link>
+      {/* CENTER NAVIGATION LINKS */}
+      <nav className="navbar-center">
+        <NavLink
+          to="/"
+          className={({ isActive }) =>
+            "nav-link" + (isActive ? " active" : "")
+          }
+        >
+          Home
+        </NavLink>
 
-        {currentUser && <Link to="/dashboard">Dashboard</Link>}
+        {currentUser && (
+          <NavLink
+            to="/dashboard"
+            className={({ isActive }) =>
+              "nav-link" + (isActive ? " active" : "")
+            }
+          >
+            Dashboard
+          </NavLink>
+        )}
+      </nav>
 
-        {!currentUser ? (
+      {/* RIGHT: AUTH CONTROLS */}
+      <div className="navbar-right">
+        {currentUser ? (
           <>
-            <Link to="/login" className="btn-outline">
-              Login
-            </Link>
-            <Link to="/Register" className="btn-fill">
-              Register
-            </Link>
-          </>
-        ) : (
-          <>
-            <span className="user-email">{currentUser.email}</span>
-            <button onClick={handleLogout} className="btn-logout">
+            <span className="navbar-email">{currentUser.email}</span>
+            <button className="navbar-btn logout" onClick={handleLogout}>
               Logout
             </button>
           </>
+        ) : (
+          <>
+            <button
+              className="navbar-btn login"
+              onClick={() => navigate("/login")}
+            >
+              Login
+            </button>
+
+            <button
+              className="navbar-btn register"
+              onClick={() => navigate("/register")}
+            >
+              Register
+            </button>
+          </>
         )}
-      </nav>
+      </div>
     </header>
   );
 }

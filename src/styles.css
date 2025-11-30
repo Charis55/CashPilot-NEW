@@ -1005,3 +1005,119 @@ button:hover {
   margin-top: 40px;
   opacity: 0.7;
 }
+/* -------------------------
+   NAVBAR — CLEAN, ALIGNED
+-------------------------- */
+
+.navbar {
+  width: 100%;
+  padding: 18px 50px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: transparent;
+  position: relative;
+  z-index: 50;
+}
+
+/* LEFT (Logo + Brand) */
+.navbar-left {
+  display: flex;
+  align-items: center;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #e2fbee;
+  text-decoration: none;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.navbar-brand img {
+  width: 42px;
+  height: 42px;
+}
+
+/* CENTER LINKS */
+.navbar-center {
+  display: flex;
+  gap: 28px;
+}
+
+.nav-link {
+  color: #b7c8df;
+  font-size: 1rem;
+  text-decoration: none;
+  transition: 0.25s;
+}
+
+.nav-link:hover {
+  color: #22c55e;
+}
+
+.nav-link.active {
+  color: #22c55e;
+  font-weight: 600;
+}
+
+/* RIGHT SECTION */
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.navbar-email {
+  color: #9fb3cd;
+  font-size: 0.9rem;
+  margin-right: 4px;
+}
+
+/* BUTTONS */
+.navbar-btn {
+  padding: 8px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  border: none;
+  transition: 0.25s;
+}
+
+/* LOGIN BUTTON */
+.navbar-btn.login {
+  background: transparent;
+  color: #22c55e;
+  border: 1px solid #22c55e;
+}
+
+.navbar-btn.login:hover {
+  background: #22c55e;
+  color: #02130d;
+}
+
+/* REGISTER BUTTON */
+.navbar-btn.register {
+  background: #1e90ff;
+  color: white;
+  box-shadow: 0 0 12px rgba(30, 144, 255, 0.35);
+}
+
+.navbar-btn.register:hover {
+  background: #3aa3ff;
+  transform: translateY(-2px);
+}
+
+/* LOGOUT BUTTON */
+.navbar-btn.logout {
+  background: #ff4757;
+  color: #fff;
+  box-shadow: 0 0 10px rgba(255, 78, 87, 0.35);
+}
+
+.navbar-btn.logout:hover {
+  background: #ff6b81;
+  transform: translateY(-2px);
+}
