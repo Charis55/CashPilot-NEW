@@ -74,6 +74,10 @@ export default function Register() {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
+          <p className="password-hint">
+            Your password needs at least 8 characters and must include one uppercase letter,
+            one lowercase letter, one symbol or sign, and one number.
+          </p>
 
           <button type="submit">Register</button>
         </form>
