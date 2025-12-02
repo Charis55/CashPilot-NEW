@@ -91,7 +91,7 @@ export default function Home() {
       </section>
 
       <footer className="home-footer">
-        © {new Date().getFullYear()} Violer Ore. All rights reserved.
+        © {new Date().getFullYear()} CharisCorp. All rights reserved.
       </footer>
     </div>
   );
