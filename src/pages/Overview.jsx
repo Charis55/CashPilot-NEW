@@ -179,46 +179,6 @@ export default function Overview() {
         ? Math.max(0, Math.round(((monthlyIncome - totals.expense) / monthlyIncome) * 100))
         : null;
 
-    // Top spending categories
-    const topCategories = useMemo(() => {
-        const map = {};
-        transactions
-            .filter(t => t.type !== "income")
-            .forEach(t => {
-                const cat = t.category || "Other";
-                map[cat] = (map[cat] || 0) + Number(t.amount);
-            });
-        const sorted = Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, 5);
-        const max = sorted[0]?.[1] || 1;
-        return sorted.map(([cat, amt]) => ({ cat, amt, pct: Math.round((amt / max) * 100) }));
-    }, [transactions]);
-
-    // Financial health grade
-    const healthGrade = useMemo(() => {
-        let score = 0;
-        if (savingsRate !== null) {
-            if (savingsRate >= 30) score += 40;
-            else if (savingsRate >= 20) score += 30;
-            else if (savingsRate >= 10) score += 15;
-        }
-        if (budget > 0) {
-            const usage = totals.expense / budget;
-            if (usage <= 0.7) score += 35;
-            else if (usage <= 1.0) score += 20;
-            else score += 0;
-        } else {
-            score += 20; // no budget set — neutral
-        }
-        if (totals.balance > 0) score += 25;
-        else if (totals.balance === 0) score += 10;
-
-        if (score >= 85) return { grade: "A", label: "Excellent", color: "#4ade80", note: "You're saving well and staying under budget." };
-        if (score >= 65) return { grade: "B", label: "Good", color: "#86efac", note: "Solid finances — small improvements can push you to an A." };
-        if (score >= 45) return { grade: "C", label: "Fair", color: "#facc15", note: "Watch your spending — you're close to your budget limit." };
-        if (score >= 25) return { grade: "D", label: "Needs Work", color: "#fb923c", note: "Expenses are high relative to income. Try cutting discretionary spend." };
-        return { grade: "F", label: "Critical", color: "#f87171", note: "You're overspending significantly. Review your budget immediately." };
-    }, [savingsRate, budget, totals]);
-
     const overBudget = budget > 0 && totals.expense > budget;
 
     const recent = useMemo(() =>
@@ -363,6 +323,98 @@ export default function Overview() {
 
             </div>
 
+            {/* ── New Comparison Row: Top Categories & Health Grade ── */}
+            <div className="ov-middle-grid">
+
+                {/* Top Categories */}
+                <div className="ov-top-categories-card">
+                    <p className="ov-section-label" style={{ marginBottom: "20px" }}>Top Spending Categories</p>
+                    {useMemo(() => {
+                        const cats = {};
+                        transactions.filter(t => t.type === "expense").forEach(t => {
+                            cats[t.category] = (cats[t.category] || 0) + Number(t.amount);
+                        });
+                        const totalExp = Object.values(cats).reduce((a, b) => a + b, 0);
+                        const sorted = Object.entries(cats)
+                            .sort((a, b) => b[1] - a[1])
+                            .slice(0, 4);
+
+                        if (sorted.length === 0) return <p className="ov-empty">No expenses yet.</p>;
+
+                        return sorted.map(([cat, amt]) => {
+                            const pct = totalExp > 0 ? (amt / totalExp) * 100 : 0;
+                            return (
+                                <div key={cat} className="ov-category-item">
+                                    <div className="ov-category-info">
+                                        <span>{cat}</span>
+                                        <span className="ov-category-pct">₦{fmt(amt)} ({Math.round(pct)}%)</span>
+                                    </div>
+                                    <div className="ov-category-bar-track">
+                                        <div className="ov-category-bar-fill" style={{ width: `${pct}%` }} />
+                                    </div>
+                                </div>
+                            );
+                        });
+                    }, [transactions])}
+                </div>
+
+                {/* Financial Health Grade */}
+                <div className="ov-health-card">
+                    <p className="ov-section-label">Financial Health</p>
+                    {useMemo(() => {
+                        // Factors: Savings Rate, Budget Adherence, Expense/Income ratio
+                        const sRate = savingsRate || 0;
+                        const bAdh = budget > 0 ? Math.max(0, 100 - (totals.expense / budget * 100)) : 100;
+                        const eiRatio = monthlyIncome > 0 ? (totals.expense / monthlyIncome) : 1;
+
+                        let score = 0;
+                        // Score 1: Savings Rate (40 pts max) - 30% savings rate is now 'Elite' (40 pts)
+                        score += Math.min((sRate / 30) * 40, 40);
+
+                        // Score 2: Budget Adherence (40 pts max) - 50% clear budget is now 'Elite' (40 pts)
+                        score += budget > 0 ? Math.min((bAdh / 50) * 40, 40) : 40;
+
+                        // Score 3: Expense/Income Ratio (20 pts max) - Spending < 50% is 'Elite' (20 pts)
+                        score += Math.min(Math.max(0, (1 - eiRatio) / 0.5 * 20), 20);
+
+                        let grade = "D", label = "Poor", color = "#f87171";
+                        if (score >= 80) { grade = "A"; label = "Excellent"; color = "#4ade80"; }
+                        else if (score >= 60) { grade = "B"; label = "Good"; color = "#22c55e"; }
+                        else if (score >= 40) { grade = "C"; label = "Fair"; color = "#facc15"; }
+
+                        return (
+                            <div className="ov-health-content">
+                                <div className="ov-health-grade-circle" style={{ borderColor: color, boxShadow: `0 0 20px ${color}33` }}>
+                                    <span className="ov-health-grade-letter" style={{ color }}>{grade}</span>
+                                    <span className="ov-health-grade-label">{label}</span>
+                                </div>
+                                <div className="ov-health-factors">
+                                    <div className="ov-health-factor">
+                                        <span className="ov-factor-label">Savings</span>
+                                        <span className={`ov-factor-status ${sRate >= 20 ? "good" : sRate >= 10 ? "fair" : "poor"}`}>
+                                            {sRate}%
+                                        </span>
+                                    </div>
+                                    <div className="ov-health-factor">
+                                        <span className="ov-factor-label">Budget</span>
+                                        <span className={`ov-factor-status ${bAdh >= 90 ? "good" : bAdh >= 70 ? "fair" : "poor"}`}>
+                                            {Math.round(bAdh)}% clear
+                                        </span>
+                                    </div>
+                                    <div className="ov-health-factor">
+                                        <span className="ov-factor-label">Ratio</span>
+                                        <span className={`ov-factor-status ${eiRatio < 0.7 ? "good" : eiRatio < 0.9 ? "fair" : "poor"}`}>
+                                            {Math.round(eiRatio * 100)}% spent
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    }, [transactions, budget, monthlyIncome, totals, savingsRate])}
+                </div>
+
+            </div>
+
             {/* ── Recent Transactions ── */}
             <div className="ov-recent-card">
                 <div className="ov-recent-header">
@@ -390,57 +442,6 @@ export default function Overview() {
                         ))}
                     </div>
                 )}
-            </div>
-
-            {/* ── Bottom row: Top Categories + Health Grade ── */}
-            <div className="ov-bottom-row">
-
-                {/* Top spending categories */}
-                <div className="ov-cat-card">
-                    <p className="ov-section-label" style={{ marginBottom: "18px" }}>Top Spending Categories</p>
-                    {topCategories.length === 0 ? (
-                        <p className="ov-empty">No expenses recorded yet.</p>
-                    ) : (
-                        topCategories.map(({ cat, amt, pct }) => (
-                            <div key={cat} className="ov-cat-row">
-                                <div className="ov-cat-meta">
-                                    <span className="ov-cat-name">{cat}</span>
-                                    <span className="ov-cat-amt">&#8358;{fmt(amt)}</span>
-                                </div>
-                                <div className="ov-cat-track">
-                                    <div className="ov-cat-fill" style={{ width: `${pct}%` }} />
-                                </div>
-                            </div>
-                        ))
-                    )}
-                </div>
-
-                {/* Financial health grade */}
-                <div className="ov-health-card">
-                    <p className="ov-section-label" style={{ marginBottom: "16px" }}>Financial Health</p>
-                    <div className="ov-health-grade" style={{ color: healthGrade.color }}>
-                        {healthGrade.grade}
-                    </div>
-                    <p className="ov-health-label" style={{ color: healthGrade.color }}>{healthGrade.label}</p>
-                    <p className="ov-health-note">{healthGrade.note}</p>
-                    <div className="ov-health-factors">
-                        <div className="ov-health-factor">
-                            <span>Savings Rate</span>
-                            <strong>{savingsRate !== null ? `${savingsRate}%` : "—"}</strong>
-                        </div>
-                        <div className="ov-health-factor">
-                            <span>Budget Usage</span>
-                            <strong>{budget > 0 ? `${Math.round((totals.expense / budget) * 100)}%` : "Not set"}</strong>
-                        </div>
-                        <div className="ov-health-factor">
-                            <span>Balance</span>
-                            <strong style={{ color: totals.balance >= 0 ? "var(--accent-secondary)" : "#f87171" }}>
-                                {totals.balance >= 0 ? "Positive" : "Negative"}
-                            </strong>
-                        </div>
-                    </div>
-                </div>
-
             </div>
 
         </div>

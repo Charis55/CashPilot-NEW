@@ -1,23 +1,14 @@
-<<<<<<< HEAD
 import React, { useState, useEffect } from "react";
 import { Routes, Route, Navigate, Link, NavLink, useNavigate, useLocation } from "react-router-dom";
-=======
-import React from "react";
-import { Routes, Route, Navigate, Link, useLocation } from "react-router-dom";
->>>>>>> d00d81699a16cd22837bda9c07dd0f897d27f92f
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
 import ResetPassword from "./components/auth/ResetPassword";
-<<<<<<< HEAD
 import LandingPage from "./pages/LandingPage";
 import Overview from "./pages/Overview";
 import AddTransaction from "./pages/AddTransaction";
 import TransactionHistory from "./pages/TransactionHistory";
 import Analytics from "./pages/Analytics";
-=======
-import Dashboard from "./components/Dashboard";
->>>>>>> d00d81699a16cd22837bda9c07dd0f897d27f92f
 
 function PrivateRoute({ children }) {
   const { currentUser } = useAuth();
@@ -27,13 +18,9 @@ function PrivateRoute({ children }) {
 
 function AppShell() {
   const { currentUser, logout } = useAuth();
-<<<<<<< HEAD
   const navigate = useNavigate();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
-=======
-  const location = useLocation();
->>>>>>> d00d81699a16cd22837bda9c07dd0f897d27f92f
 
   const isLandingPage = location.pathname === "/";
   const isAuthPage =
@@ -73,12 +60,8 @@ function AppShell() {
   return (
     <div className="app-shell">
 
-<<<<<<< HEAD
       {/* Authenticated header — shown on all app pages except landing and auth */}
       {!isLandingPage && !isAuthPage && (
-=======
-      {!isAuthPage && (
->>>>>>> d00d81699a16cd22837bda9c07dd0f897d27f92f
         <header className="app-header">
 
           <Link to="/dashboard" className="header-logo" style={{ textDecoration: "none" }}>
@@ -148,6 +131,7 @@ function AppShell() {
           <Route path="/add" element={<PrivateRoute><AddTransaction /></PrivateRoute>} />
           <Route path="/transactions" element={<PrivateRoute><TransactionHistory /></PrivateRoute>} />
           <Route path="/analytics" element={<PrivateRoute><Analytics /></PrivateRoute>} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
     </div>
