@@ -1,44 +1,23 @@
-// MonthlyIncomePanel.jsx
 import React, { useState, useEffect } from "react";
 import { doc, setDoc } from "firebase/firestore";
 import { db } from "../firebase";
 
-export default function MonthlyIncomePanel({
-  monthlyIncome,
-  setMonthlyIncome,
-  userId,
-}) {
+export default function MonthlyIncomePanel({ monthlyIncome, setMonthlyIncome, userId }) {
   const [value, setValue] = useState("");
 
-  // Always reflect the latest saved value
   useEffect(() => {
     setValue(monthlyIncome || "");
   }, [monthlyIncome]);
 
   async function saveIncome() {
-    if (!value) {
-      alert("Please enter an income amount.");
-      return;
-    }
-    if (!userId) {
-      alert("User not logged in.");
-      return;
-    }
-
+    if (!value) return alert("Please enter an income amount.");
+    if (!userId) return alert("User not logged in.");
     try {
-      // One stable doc per user: monthlyIncome/{uid}
-      const ref = doc(db, "monthlyIncome", userId);
-
       await setDoc(
-        ref,
-        {
-          userId,                 // must be present in the doc
-          amount: Number(value),
-          updatedAt: new Date(),
-        },
+        doc(db, "monthlyIncome", userId),
+        { userId, amount: Number(value), updatedAt: new Date() },
         { merge: true }
       );
-
       setMonthlyIncome(Number(value));
       alert("Monthly income saved!");
     } catch (error) {
@@ -49,23 +28,31 @@ export default function MonthlyIncomePanel({
 
   return (
     <div className="card">
-      <h3>Monthly Income</h3>
+      <div style={{ marginBottom: "16px" }}>
+        <h3 style={{ margin: "0 0 4px", fontSize: "1.1rem", fontWeight: 800, color: "var(--card-text)", letterSpacing: "-0.3px" }}>
+          Monthly Income
+        </h3>
+        <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "1px" }}>
+          Current: &#8358;{Number(monthlyIncome || 0).toFixed(2)}
+        </p>
+      </div>
 
-      <input
-        type="number"
-        placeholder="Enter income (₦)"
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-      />
-
-      <button type="button" onClick={saveIncome}>
-        Save
-      </button>
-
-      <p style={{ marginTop: "8px" }}>
-        Current monthly income:{" "}
-        <strong>₦{Number(monthlyIncome || 0).toFixed(2)}</strong>
-      </p>
+      <div style={{ display: "flex", gap: "10px", alignItems: "flex-end" }}>
+        <div style={{ flex: 1 }}>
+          <label style={{ fontSize: "0.82rem", marginBottom: "6px", display: "block", color: "var(--text-muted)" }}>
+            Set Income
+          </label>
+          <input
+            type="number"
+            placeholder="Enter income amount"
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+          />
+        </div>
+        <button type="button" className="btn-primary" onClick={saveIncome} style={{ whiteSpace: "nowrap" }}>
+          Save
+        </button>
+      </div>
     </div>
   );
 }

@@ -30,28 +30,28 @@ export default function Dashboard() {
   const pieChartRef = useRef(null);
   const barChartRef = useRef(null);
 
-/* ----------------------------------------------------------
-    🔥 REAL-TIME TRANSACTIONS LISTENER
----------------------------------------------------------- */
-useEffect(() => {
-  if (!currentUser) return;
+  /* ----------------------------------------------------------
+      🔥 REAL-TIME TRANSACTIONS LISTENER
+  ---------------------------------------------------------- */
+  useEffect(() => {
+    if (!currentUser) return;
 
-  const q = query(
-    collection(db, "transactions"),
-    where("userId", "==", currentUser.uid),
-    orderBy("createdAt", "desc")
-  );
+    const q = query(
+      collection(db, "transactions"),
+      where("userId", "==", currentUser.uid),
+      orderBy("createdAt", "desc")
+    );
 
-  const unsubscribe = onSnapshot(q, (snapshot) => {
-    const docs = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-    setTransactions(docs);
-  });
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const docs = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setTransactions(docs);
+    });
 
-  return unsubscribe;
-}, [currentUser]);
+    return unsubscribe;
+  }, [currentUser]);
 
 
   /* ----------------------------------------------------------
@@ -135,45 +135,67 @@ useEffect(() => {
   return (
     <div className="dashboard">
 
-      {/* SUMMARY CARDS */}
+      {/* ── OVERVIEW HEADER ── */}
+      <div className="section-header">
+        <h2 className="section-title">Financial Overview</h2>
+        <div className="underline-accent" />
+      </div>
+
+      {/* ── STAT CARDS ── */}
       <section className="summary">
 
-        <div className="summary-box">
-          <h3>Total Income</h3>
-          <p>₦{totals.income.toFixed(2)}</p>
+        <div className="stat-card">
+          <span className="stat-icon">💰</span>
+          <span className="stat-value">₦{totals.income.toFixed(2)}</span>
+          <span className="stat-label">Total Income</span>
         </div>
 
-        <div className="summary-box">
-          <h3>Total Expenses</h3>
-          <p>₦{totals.expense.toFixed(2)}</p>
+        <div className="stat-card">
+          <span className="stat-icon">💸</span>
+          <span className={`stat-value ${overBudget ? "danger" : ""}`}>
+            ₦{totals.expense.toFixed(2)}
+          </span>
+          <span className="stat-label">Total Expenses</span>
         </div>
 
-        <div className="summary-box">
-          <h3>Balance</h3>
-          <p>₦{totals.balance.toFixed(2)}</p>
-        </div>
-
-        {/* WIDE BOX: BUDGET */}
-        <div className="summary-box wide">
-          <BudgetPanel
-            budget={budget}
-            setBudget={setBudget}
-            userId={currentUser?.uid}
-          />
-        </div>
-
-        {/* WIDE BOX: MONTHLY INCOME */}
-        <div className="summary-box wide">
-          <MonthlyIncomePanel
-            monthlyIncome={monthlyIncome}
-            setMonthlyIncome={setMonthlyIncome}
-            userId={currentUser?.uid}   // REQUIRED FOR RULES
-          />
+        <div className="stat-card">
+          <span className="stat-icon">⚖️</span>
+          <span className={`stat-value ${totals.balance < 0 ? "danger" : ""}`}>
+            ₦{totals.balance.toFixed(2)}
+          </span>
+          <span className="stat-label">Net Balance</span>
         </div>
 
       </section>
 
-      {/* MAIN LAYOUT */}
+      {/* ── BUDGET & INCOME PANELS ── */}
+      <div className="section-header" style={{ marginTop: "10px" }}>
+        <h2 className="section-title">Budget & Income</h2>
+        <div className="underline-accent" />
+      </div>
+
+      <section className="summary" style={{ gridTemplateColumns: "1fr 1fr", marginTop: "0" }}>
+
+        <BudgetPanel
+          budget={budget}
+          setBudget={setBudget}
+          userId={currentUser?.uid}
+        />
+
+        <MonthlyIncomePanel
+          monthlyIncome={monthlyIncome}
+          setMonthlyIncome={setMonthlyIncome}
+          userId={currentUser?.uid}
+        />
+
+      </section>
+
+      {/* ── MAIN LAYOUT ── */}
+      <div className="section-header" style={{ marginTop: "20px" }}>
+        <h2 className="section-title">Transactions & Analytics</h2>
+        <div className="underline-accent" />
+      </div>
+
       <section className="layout">
 
         <div className="left">
@@ -192,7 +214,6 @@ useEffect(() => {
         <div className="right">
 
           <div className="charts-section">
-
             <div className="chart-card" ref={barChartRef}>
               <h3>Income vs Expense</h3>
               <div className="chart-container">
@@ -206,18 +227,16 @@ useEffect(() => {
                 <Charts transactions={transactions} chartType="pie" />
               </div>
             </div>
-
           </div>
 
           <ExportButtons
-  transactions={transactions}
-  totals={totals}
-  monthlyIncome={monthlyIncome}
-  budget={budget}
-  pieChartRef={pieChartRef}
-  barChartRef={barChartRef}
-/>
-
+            transactions={transactions}
+            totals={totals}
+            monthlyIncome={monthlyIncome}
+            budget={budget}
+            pieChartRef={pieChartRef}
+            barChartRef={barChartRef}
+          />
 
         </div>
 

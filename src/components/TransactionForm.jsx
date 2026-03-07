@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react'
-import { 
-  collection, 
-  addDoc, 
-  doc, 
-  updateDoc, 
-  serverTimestamp 
+import {
+  collection,
+  addDoc,
+  doc,
+  updateDoc,
+  serverTimestamp
 } from 'firebase/firestore'
 import { db } from '../firebase'
 import { useAuth } from '../contexts/AuthContext'
@@ -18,7 +18,7 @@ const defaultState = {
   note: '',
 }
 
-export default function TransactionForm({ editTransaction, clearEdit }) {
+export default function TransactionForm({ editTransaction, clearEdit, fullWidth = false }) {
   const [form, setForm] = useState(defaultState)
   const { currentUser } = useAuth()
 
@@ -99,9 +99,17 @@ export default function TransactionForm({ editTransaction, clearEdit }) {
 
   return (
     <div className="card">
-      <h3>{editTransaction ? 'Edit Transaction' : 'Add Transaction'}</h3>
+      <div style={{ marginBottom: "20px" }}>
+        <h3 style={{ margin: 0, fontSize: "1.2rem", fontWeight: 800, color: "var(--card-text)", letterSpacing: "-0.3px" }}>
+          {editTransaction ? 'Edit Transaction' : 'Add Transaction'}
+        </h3>
+      </div>
 
-      <form className="transaction-form" onSubmit={handleSubmit}>
+      <form
+        className="transaction-form"
+        onSubmit={handleSubmit}
+        style={fullWidth ? { display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "20px 32px" } : {}}
+      >
 
         <label>
           Label (Name)
@@ -111,6 +119,7 @@ export default function TransactionForm({ editTransaction, clearEdit }) {
             value={form.label}
             onChange={handleChange}
             required
+            placeholder="e.g. Groceries"
           />
         </label>
 
@@ -131,6 +140,7 @@ export default function TransactionForm({ editTransaction, clearEdit }) {
             onChange={handleChange}
             required
             min="0"
+            placeholder="0.00"
           />
         </label>
 
@@ -142,6 +152,7 @@ export default function TransactionForm({ editTransaction, clearEdit }) {
             value={form.category}
             onChange={handleChange}
             required
+            placeholder="e.g. Food"
           />
         </label>
 
@@ -163,17 +174,17 @@ export default function TransactionForm({ editTransaction, clearEdit }) {
             name="note"
             value={form.note}
             onChange={handleChange}
-            placeholder="Optional"
+            placeholder="Optional note"
           />
         </label>
 
-        <div className="form-actions">
-          <button type="submit">
-            {editTransaction ? 'Update' : 'Add'}
+        <div className="form-actions" style={fullWidth ? { gridColumn: "span 2" } : {}}>
+          <button type="submit" className="btn-primary">
+            {editTransaction ? 'Update' : 'Add Transaction'}
           </button>
 
           {editTransaction && (
-            <button type="button" onClick={clearEdit}>
+            <button type="button" className="btn-secondary" onClick={clearEdit}>
               Cancel
             </button>
           )}

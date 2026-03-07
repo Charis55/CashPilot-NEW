@@ -6,8 +6,8 @@ import { useAuth } from "../../contexts/AuthContext";
 export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
-
   const [form, setForm] = useState({ email: "", password: "" });
+  const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -19,37 +19,22 @@ export default function Login() {
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
-
     if (!form.email || !form.password) {
-      setError("Please enter email and password.");
+      setError("Please enter your email and password.");
       return;
     }
-
     try {
       setLoading(true);
-
-      // ❗ LOGIN — AuthContext handles email verification check
       await login(form.email, form.password);
-
-      navigate("/"); // success → go dashboard
+      navigate("/dashboard");
     } catch (err) {
-      console.error("Login error:", err);
-
-      // 🔥 This matches the custom error thrown inside AuthContext.login()
-      if (err.code === "auth/email-not-verified") {
-        setError("Please verify your email before signing in.");
-      } 
-      else if (err.code === "auth/invalid-credential") {
-        setError("Invalid email or password.");
-      }
-      else if (err.code === "auth/wrong-password") {
-        setError("Incorrect password. Please try again.");
-      }
-      else if (err.code === "auth/user-not-found") {
-        setError("No account found with that email.");
-      }
-      else {
-        setError("Failed to sign in. Please check your details.");
+      console.error("Login error:", err.code, err.message);
+      if (err.code === "auth/invalid-credential" || err.code === "auth/wrong-password" || err.code === "auth/user-not-found") {
+        setError("Invalid email or password. Please try again.");
+      } else if (err.code === "auth/too-many-requests") {
+        setError("Too many attempts. Please wait a moment and try again.");
+      } else {
+        setError(err.message || "Failed to sign in. Please try again.");
       }
     } finally {
       setLoading(false);
@@ -57,60 +42,99 @@ export default function Login() {
   }
 
   return (
-    <div className="auth-page">
-      <div className="auth-box">
+    <div className="auth-split">
 
-        <div className="auth-logo">
-          <img src="/assets/cashpilot-logo.png" alt="CashPilot" />
-          <span>CashPilot</span>
-        </div>
-
-        <h2>Sign In</h2>
-
-        {error && (
-          <p
-            style={{
-              color: "#b91c1c",
-              fontSize: "0.9rem",
-              marginBottom: "0.8rem",
-            }}
-          >
-            {error}
+      {/* LEFT PANEL */}
+      <div className="auth-split-left">
+        <div className="auth-split-left-inner">
+          <Link to="/" className="auth-back-link">&larr; Back to home</Link>
+          <div className="auth-brand">
+            <img src="/assets/cashpilot-logo.png" alt="CashPilot" />
+            <span>CashPilot</span>
+          </div>
+          <h2 className="auth-left-heading">
+            Your finances,<br />
+            <span className="auth-left-gradient">under control.</span>
+          </h2>
+          <p className="auth-left-sub">
+            Track every naira. Set budgets, visualize patterns,
+            and export professional reports — all in real time.
           </p>
-        )}
+          <ul className="auth-feature-list">
+            <li>Real-time transaction sync</li>
+            <li>Budget &amp; income tracking</li>
+            <li>Charts and analytics</li>
+            <li>CSV and PDF exports</li>
+          </ul>
+        </div>
+        <div className="auth-orb auth-orb-1" />
+        <div className="auth-orb auth-orb-2" />
+      </div>
 
-        <form onSubmit={handleSubmit}>
-          <label>
-            Email
-            <input
-              type="email"
-              name="email"
-              value={form.email}
-              onChange={handleChange}
-            />
-          </label>
+      {/* RIGHT PANEL */}
+      <div className="auth-split-right">
+        <div className="auth-form-card">
 
-          <label>
-            Password
-            <input
-              type="password"
-              name="password"
-              value={form.password}
-              onChange={handleChange}
-            />
-          </label>
+          <div className="auth-form-header">
+            <h1>Welcome back</h1>
+            <p>Sign in to your CashPilot account</p>
+          </div>
 
-          <button type="submit" disabled={loading}>
-            {loading ? "Signing in…" : "Sign In"}
-          </button>
-        </form>
+          {error && <div className="auth-error-banner">{error}</div>}
 
-        <div className="auth-footer">
-          Don&apos;t have an account? <Link to="/register">Create One</Link>
-          <br />
-          <Link to="/reset-password">Forgot Password?</Link>
+          <form onSubmit={handleSubmit} className="auth-form">
+            <div className="auth-field">
+              <label htmlFor="login-email">Email address</label>
+              <input
+                id="login-email"
+                type="email"
+                name="email"
+                value={form.email}
+                onChange={handleChange}
+                placeholder="you@example.com"
+                autoComplete="email"
+              />
+            </div>
+
+            <div className="auth-field">
+              <div className="auth-field-row">
+                <label htmlFor="login-password">Password</label>
+                <Link to="/reset-password" className="auth-link-small">Forgot password?</Link>
+              </div>
+              <div className="auth-pw-wrapper">
+                <input
+                  id="login-password"
+                  type={showPw ? "text" : "password"}
+                  name="password"
+                  value={form.password}
+                  onChange={handleChange}
+                  placeholder="••••••••"
+                  autoComplete="current-password"
+                />
+                <button
+                  type="button"
+                  className="auth-pw-toggle"
+                  onClick={() => setShowPw(v => !v)}
+                  aria-label={showPw ? "Hide password" : "Show password"}
+                >
+                  {showPw ? "Hide" : "Show"}
+                </button>
+              </div>
+            </div>
+
+            <button type="submit" className="auth-submit-btn" disabled={loading}>
+              {loading ? <span className="auth-spinner" /> : "Sign In"}
+            </button>
+          </form>
+
+          <div className="auth-switch">
+            Don&apos;t have an account?&nbsp;
+            <Link to="/register" className="auth-switch-link">Create one</Link>
+          </div>
+
         </div>
       </div>
+
     </div>
   );
 }

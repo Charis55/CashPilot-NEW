@@ -15,25 +15,14 @@ export default function BudgetPanel({ budget, setBudget }) {
   async function handleSave(e) {
     e.preventDefault()
     if (!currentUser) return alert("User not logged in")
-
     setSaving(true)
-
     try {
-      const userId = currentUser.uid
-
-      // SAVE BUDGET TO A DOCUMENT NAMED AFTER USER ID
       await setDoc(
-        doc(db, "budgets", userId),
-        {
-          userId,
-          amount: Number(input)
-        },
+        doc(db, "budgets", currentUser.uid),
+        { userId: currentUser.uid, amount: Number(input) },
         { merge: true }
       )
-
-      // UPDATE UI IMMEDIATELY
       setBudget(Number(input))
-
     } catch (error) {
       console.error("Error saving budget:", error)
     } finally {
@@ -43,23 +32,32 @@ export default function BudgetPanel({ budget, setBudget }) {
 
   return (
     <div className="card">
-      <h3>Monthly Budget</h3>
+      <div style={{ marginBottom: "16px" }}>
+        <h3 style={{ margin: "0 0 4px", fontSize: "1.1rem", fontWeight: 800, color: "var(--card-text)", letterSpacing: "-0.3px" }}>
+          Monthly Budget
+        </h3>
+        <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "1px" }}>
+          Current: &#8358;{Number(budget || 0).toFixed(2)}
+        </p>
+      </div>
 
-      <form className="budget-form" onSubmit={handleSave}>
-        <input
-          type="number"
-          min="0"
-          value={input}
-          onChange={e => setInput(e.target.value)}
-          placeholder="Set budget (₦)"
-        />
-
-        <button type="submit" disabled={saving}>
+      <form style={{ display: "flex", gap: "10px", alignItems: "flex-end" }} onSubmit={handleSave}>
+        <div style={{ flex: 1 }}>
+          <label style={{ fontSize: "0.82rem", marginBottom: "6px", display: "block", color: "var(--text-muted)" }}>
+            Set Budget
+          </label>
+          <input
+            type="number"
+            min="0"
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            placeholder="Enter budget amount"
+          />
+        </div>
+        <button type="submit" className="btn-primary" disabled={saving} style={{ whiteSpace: "nowrap" }}>
           {saving ? 'Saving...' : 'Save'}
         </button>
       </form>
-
-      <p>Current budget: ₦{Number(budget || 0).toFixed(2)}</p>
     </div>
   )
 }
