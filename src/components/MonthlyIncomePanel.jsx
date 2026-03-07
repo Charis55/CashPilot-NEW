@@ -14,8 +14,17 @@ export default function MonthlyIncomePanel({ monthlyIncome, setMonthlyIncome, us
     if (!userId) return alert("User not logged in.");
     try {
       await setDoc(
+<<<<<<< HEAD
         doc(db, "monthlyIncome", userId),
         { userId, amount: Number(value), updatedAt: new Date() },
+=======
+        ref,
+        {
+          userId,                 // must be p
+          amount: Number(value),
+          updatedAt: new Date(),
+        },
+>>>>>>> d00d81699a16cd22837bda9c07dd0f897d27f92f
         { merge: true }
       );
       setMonthlyIncome(Number(value));

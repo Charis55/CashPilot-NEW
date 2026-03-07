@@ -45,7 +45,42 @@ export function AuthProvider({ children }) {
     return unsubscribe;
   }, []);
 
+<<<<<<< HEAD
   const value = { currentUser, login, register, resetPassword, logout };
+=======
+  // ----------------------------------------------------
+  // 🔥 AUTH STATE LISTENER
+  // ----------------------------------------------------
+useEffect(() => {
+  const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      await user.reload();
+
+      if (!user.emailVerified) {
+        setCurrentUser({ ...user, unverified: true });
+      } else {
+        setCurrentUser(user);
+      }
+    } else {
+      setCurrentUser(null);
+    }
+
+    // ✅ CRUCIAL FIX:
+    setLoading(false);
+  });
+
+  return unsubscribe;
+}, []);
+
+
+  const value = {
+    currentUser,
+    login,
+    register,
+    resetPassword,
+    logout,
+  };
+>>>>>>> d00d81699a16cd22837bda9c07dd0f897d27f92f
 
   return (
     <AuthContext.Provider value={value}>
