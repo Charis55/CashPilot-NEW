@@ -1,4 +1,4 @@
-# Finance Tracker (Firebase + React)
+# CashPilot (Firebase + React)
 
 This is a simple personal finance tracker built with React, Vite, and Firebase (Auth + Firestore).
 

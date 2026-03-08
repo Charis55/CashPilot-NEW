@@ -40,7 +40,7 @@ export default function LandingPage() {
             {/* ── NAVBAR ── */}
             <nav className="landing-nav">
                 <div className="landing-nav-logo">
-                    <img src="/assets/cashpilot-logo.png" alt="CashPilot" />
+                    <img src="/assets/cashpilot.svg" alt="CashPilot" />
                     <span>CashPilot</span>
                 </div>
                 <div className="landing-nav-cta">

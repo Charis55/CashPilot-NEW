@@ -65,7 +65,7 @@ function AppShell() {
         <header className="app-header">
 
           <Link to="/dashboard" className="header-logo" style={{ textDecoration: "none" }}>
-            <img src="/assets/cashpilot-logo.png" alt="CashPilot" />
+            <img src="/assets/cashpilot.svg" alt="CashPilot" />
             <span>CashPilot</span>
           </Link>
 

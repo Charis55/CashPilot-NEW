@@ -49,7 +49,7 @@ export default function Login() {
         <div className="auth-split-left-inner">
           <Link to="/" className="auth-back-link">&larr; Back to home</Link>
           <div className="auth-brand">
-            <img src="/assets/cashpilot-logo.png" alt="CashPilot" />
+            <img src="/assets/cashpilot.svg" alt="CashPilot" />
             <span>CashPilot</span>
           </div>
           <h2 className="auth-left-heading">
