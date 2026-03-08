@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useState, useRef } from "react";
 import {
     collection, onSnapshot, query, where, doc, setDoc, orderBy, limit,
 } from "firebase/firestore";
+import { Link } from "react-router-dom";
 import { Bar } from "react-chartjs-2";
 import {
     Chart as ChartJS, CategoryScale, LinearScale, BarElement, Tooltip,
@@ -419,7 +420,7 @@ export default function Overview() {
             <div className="ov-recent-card">
                 <div className="ov-recent-header">
                     <p className="ov-section-label">Recent Transactions</p>
-                    <a href="/transactions" className="ov-view-all">View all</a>
+                    <Link to="/transactions" className="ov-view-all">View all</Link>
                 </div>
 
                 {recent.length === 0 ? (

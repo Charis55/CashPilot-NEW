@@ -14,8 +14,14 @@ function fmt(n) {
 
 function dateStr(t) {
     if (!t) return "—";
-    const d = t.seconds ? new Date(t.seconds * 1000) : new Date(t);
-    return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+    try {
+        const d = t.toDate ? t.toDate() : (t.seconds ? new Date(t.seconds * 1000) : new Date(t));
+        if (isNaN(d.getTime())) return "—";
+        return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+    } catch (e) {
+        console.error("Error parsing date:", e, t);
+        return "—";
+    }
 }
 
 const CATEGORIES = [
